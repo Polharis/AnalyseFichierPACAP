@@ -42,6 +42,20 @@ def get_proto_name(proto_num):
             return proto_map[proto_num] 
     return 'Unknown'
 
+#l'appel paquet.ptype renvoi un int qui est lié à un protocole de la couche 3,
+# cette fonction permet de faire le lien entre ce numéro et le nom du protocole
+def get_arp_proto_name(arp_ptype_num):
+    arp_proto_map = {
+        2048: 'IPv4',
+        2054: 'ARP',
+        34525: 'IPv6'
+    }
+    for key in arp_proto_map.keys() :
+        if key == arp_ptype_num :
+            return arp_proto_map[arp_ptype_num] 
+    return 'Unknown'
+
+
 def extraireInfo(paquet) : 
     #On ajoute d'abords les informations communes à tout les paquets
     Infos = {
@@ -61,7 +75,7 @@ def extraireInfo(paquet) :
         Infos['destination'] = paquet[IP].dst
         Infos['ni IP ni ARP'] = False
     elif paquet.haslayer('ARP') : 
-        Infos['protocole ARP'] = paquet[ARP].ptype
+        Infos['protocole ARP'] = get_arp_proto_name(paquet[ARP].ptype)
         Infos['source'] = paquet[ARP].psrc
         Infos['destination'] = paquet[ARP].pdst
         Infos['ni IP ni ARP'] = False
