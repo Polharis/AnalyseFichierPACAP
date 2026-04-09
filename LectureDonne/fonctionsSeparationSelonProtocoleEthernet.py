@@ -1,84 +1,70 @@
+from xml.etree.ElementTree import tostring
+
 from scapy.all import *
 from fonctionsSeparationSelonProtocoleEthernet import *
 from datetime import datetime
 #Cette fonction permert d'ajouter les informations d'un paquet ARP dans la liste PCAPARP
 
 
-def ajoutePaquetARP(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(paquet[ARP].psrc)
-    listePaquet[2].append(paquet[ARP].pdst)
-    listePaquet[3].append(None) # lorsqu'une information n'est pas présente dans un paquet, je met None
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+#Créer des couple clé valeur : protocoles ethernet, paquets associés
+def ajouterATableParProtocole( table, paquet):
+    keyExist = False
+    EtherType = paquet[Ether].payload.name
 
-#Cette fonction permert d'ajouter les informations d'un paquet IP dans la liste PCAPIPV4
-def ajoutePaquetIP(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(paquet[IP].src)
-    listePaquet[2].append(paquet[IP].dst)
-    listePaquet[3].append(paquet[IP].ttl)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
 
-#Cette fonction permert d'ajouter les informations d'un paquet IPv6 dans la liste PCAPIPV6
-def ajoutePaquetIPv6(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(None)
-    listePaquet[2].append(None)
-    listePaquet[3].append(None)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+    for key in table.keys() :
+        if key == EtherType :
+            table[EtherType].append(extraireInfo(paquet))
+            keyExist = True
+    if not keyExist :
+        table[EtherType] = []
+        table[EtherType].append(extraireInfo(paquet))
+    
+    return table
 
-#Cette fonction permert d'ajouter les informations d'un paquet IP dans la liste PCAPIPV4
-def ajoutePaquetVLAN8021Q (paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(paquet[IP].src)
-    listePaquet[2].append(paquet[IP].dst)
-    listePaquet[3].append(paquet[IP].ttl)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+# l'appel paquet.proto renvoi un int qui est lié à un protocole de la couche 4,
+# cette fonction permet de faire le lien entre ce numéro et le nom du protocole
+def get_proto_name(proto_num):
+    proto_map = {
+        1: 'ICMP',
+        6: 'TCP',
+        17: 'UDP',
+        41: 'IPv6',
+        47: 'GRE',
+        50: 'ESP',
+        51: 'AH',
+        58: 'ICMPv6',
+        89: 'OSPF',
+        132: 'SCTP'
+    }
+    for key in proto_map.keys() :
+        if key == proto_num :
+            return proto_map[proto_num] 
+    return 'Unknown'
 
-#Cette fonction permert d'ajouter les informations d'un paquet MPLS dans la liste PCAPMPLS
-def ajoutePaquetMPLS(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(paquet[IP].src)
-    listePaquet[2].append(paquet[IP].dst)
-    listePaquet[3].append(paquet[IP].ttl)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+def extraireInfo(paquet) : 
+    #On ajoute d'abords les informations communes à tout les paquets
+    Infos = {
+        # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
+        'time': datetime.fromtimestamp(float(paquet.time)),
+        'mac_src': paquet[Ether].src,
+        'mac_dst': paquet[Ether].dst
+    }
 
-#Cette fonction permert d'ajouter les informations d'un paquet LLDP dans la liste PCAPLLDP
-def ajoutePaquetLLDP(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(None)
-    listePaquet[2].append(None)
-    listePaquet[3].append(paquet[LLDPDUTimeToLive].ttl)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+    etherType = paquet[Ether].payload.name
 
-#Cette fonction permert d'ajouter les informations d'un paquet WakeOnLan dans la liste PCAPWakeOnLan
-def ajoutePaquetWakeOnLan(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(None)
-    listePaquet[2].append(None)
-    listePaquet[3].append(None)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
-
-#Cette fonction permert d'ajouter les informations d'un paquet WakeOnLan dans la liste PCAPWakeOnLan
-def ajoutePaquetWakeOnLan(paquet,Nb,listePaquet):
-    listePaquet[0].append(Nb)
-    listePaquet[1].append(paquet[IP].src)
-    listePaquet[2].append(paquet[IP].dst)
-    listePaquet[3].append(paquet[IP].ttl)
-    listePaquet[4].append(len(paquet))
-    # date sous format AAAA-MM-JJ HH:MM:SS milisecondes
-    listePaquet[5].append(datetime.fromtimestamp(float(paquet.time)))
+    #Dans cette section on vas avoir des types d'informations différents selon le type de payload du paquet ethernet
+    if paquet.haslayer('IP') :
+        Infos['protocole IP'] = get_proto_name(paquet[IP].proto)
+        Infos['ttl'] = paquet[IP].ttl
+        Infos['source'] = paquet[IP].src
+        Infos['destination'] = paquet[IP].dst
+        Infos['ni IP ni ARP'] = False
+    elif paquet.haslayer('ARP') : 
+        Infos['protocole ARP'] = paquet[ARP].ptype
+        Infos['source'] = paquet[ARP].psrc
+        Infos['destination'] = paquet[ARP].pdst
+        Infos['ni IP ni ARP'] = False
+    else :
+        Infos['ni IP ni ARP'] = True
+    return Infos
