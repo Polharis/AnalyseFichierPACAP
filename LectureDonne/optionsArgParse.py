@@ -1,4 +1,7 @@
 import argparse
+import os
+
+FICHIER_PCAP_DEFAUT = "DataEntry/exempleCaptureWireshark.pcapng"
 
 def ajouter_parser():
     #Ajout d'options pour avoir des fonctionnalités supplémentaires
@@ -27,4 +30,25 @@ def get_plage_temps():
     except ValueError:
         print("Erreur: la plage de temps doit être un nombre entier")
     return None
+
+def get_emplacement_fichier():
+    args = ajouter_parser()
+    if args.fichier is None :
+        return FICHIER_PCAP_DEFAUT
+    else : 
+
+        fichier = args.fichier
+
+        if(len(fichier)) > 0 :
+            #Permet de vérifier si on tombe sur une erreur du type : FileNotFoundError
+            #Vérifie aussi si le paramètre n'est pas un broken symbolic links comme un int pas exemple
+            if not os.path.isfile(fichier):
+                print("Erreur, le chemin spécifier en paramètre est incorrecte, " \
+                      "le fichier PCAP par défaut à été sélectionné")
+                return FICHIER_PCAP_DEFAUT
+                
+            return fichier
+            
+        print("Erreur: chemin non adapté, le fichier PCAP par défaut à été sélectionné")
+        return FICHIER_PCAP_DEFAUT
     

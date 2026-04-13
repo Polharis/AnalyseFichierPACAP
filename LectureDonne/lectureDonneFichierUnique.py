@@ -3,9 +3,11 @@ import trieDeDonnees
 import optionsArgParse  
 
 
+#Récupération de l'emplacement du fichier si il y en a un
+emplacement_fichier = optionsArgParse.get_emplacement_fichier()
 
 # Récupération du fichier pcapng dans la variable PCAP
-PACAP = rdpcap("/home/stagetesa/projet git/AnalyseFichierPACAP/DataEntry/exempleCaptureWireshark.pcapng")
+PACAP = rdpcap(emplacement_fichier)
 longueur_PCAP = len(PACAP)
 
 #Récupération de la plage de temps entrée en paramètre par l'utilisateur
@@ -30,8 +32,9 @@ def get_table_par_protocole() :
 
 
 
+#Print de test
 #print(tableParProtocole.values())
-
+#print(PACAP[2].show())
 
 
 
