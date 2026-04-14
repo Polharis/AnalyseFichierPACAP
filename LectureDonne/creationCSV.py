@@ -2,6 +2,7 @@ from scapy.all import *
 import lectureDonneFichierUnique  
 import csv
 
+
 #Récupération du dictionnaire contenant les données extraites du fichier pcapng
 table_par_protocole = lectureDonneFichierUnique.get_table_par_protocole()
 
@@ -51,3 +52,4 @@ with open('data.csv', 'w', newline='', encoding='utf-8') as f:
         writer.writerow(lignes)
     
 f.close()
+

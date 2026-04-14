@@ -10,7 +10,10 @@ def ajouter_parser():
     parser.add_argument("-f", "--fichier", help="Le chemin du fichier pcapng à analyser", required=False)
     #Option pour regrouper des paquets identiques sur une plage de temps donnée
     parser.add_argument("-p", "--plage-temps", help="La plage de temps à analyser (format: 'nbSecondes)", required=False)
+    #Option pour n'afficher que les paquet de type IP ou IPV6
+    parser.add_argument("-i", "--ip-only", help="N'affiche que les paquets de type IP ou IPV6", required=False , action='store_true')
     return parser.parse_args()
+
 
 
 
@@ -51,4 +54,8 @@ def get_emplacement_fichier():
             
         print("Erreur: chemin non adapté, le fichier PCAP par défaut à été sélectionné")
         return FICHIER_PCAP_DEFAUT
+    
+def get_ip_only():
+    args = ajouter_parser()
+    return args.ip_only
     

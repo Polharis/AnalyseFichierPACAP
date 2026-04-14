@@ -21,7 +21,8 @@ table_par_protocole = {}
 for (i) in range (0,longueur_PCAP):
     #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
     if PACAP[i].haslayer(Ether) :
-        table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, PACAP[i], i + 1)
+        ip_only = optionsArgParse.get_ip_only()
+        table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, PACAP[i], i + 1, ip_only)
 
 
 
@@ -34,7 +35,8 @@ def get_table_par_protocole() :
 
 #Print de test
 #print(tableParProtocole.values())
-#print(PACAP[2].show())
+#print(PACAP[52].sport)
+
 
 
 

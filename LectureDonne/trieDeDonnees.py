@@ -6,13 +6,21 @@ from datetime import timedelta
 #Cette fonction permet d'ajouter les informations d'un paquet ARP dans la liste PCAPARP
 
 
+
 #Créer des couples clé-valeur : type de payload Ethernet, paquets associés
-def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet):
+
+def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,ip_only):
     EtherType = paquet[Ether].payload.name
     #Si le payload en question n'a jamais été trouvé alors on le crée
     if EtherType not in table:
         table[EtherType] = []
     #On ajoute un dictionnaire par paquet
+
+    #Si l'option ip_only est activée, on n'ajoute que les paquets de type IP ou IPv6
+    if ip_only:
+        if EtherType != 'IP' and EtherType != 'IPv6':
+            return table
+        
     table[EtherType].append(extraire_info(paquet, numero_paquet))
     return table
 
@@ -69,6 +77,9 @@ def extraire_info(paquet,num_paquet) :
         Infos['source'] = paquet[IP].src
         Infos['destination'] = paquet[IP].dst
         Infos['ni IP ni ARP'] = False
+        if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
+            Infos['port_src'] = paquet.sport
+            Infos['port_dst'] = paquet.dport
     elif paquet.haslayer('ARP') : 
         Infos['protocole ARP'] = get_arp_proto_name(paquet[ARP].ptype)
         Infos['source'] = paquet[ARP].psrc
@@ -78,6 +89,7 @@ def extraire_info(paquet,num_paquet) :
         #Pour repérer les paquets avec des payloads particuliers
         Infos['ni IP ni ARP'] = True
     return Infos
+
 
 
                       
@@ -134,3 +146,4 @@ def reunir_paquet_par_temps(table, plage_temps):
                 nouvelle_table[cle].append(dict(paquet))  # dict() = copie indépendante
 
     return nouvelle_table
+
