@@ -1,6 +1,14 @@
+import sys
+import os
+
+# Remonte d'un niveau pour atteindre la racine du projet
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from scapy.all import *
 import trieDeDonnees 
-import optionsArgParse  
+import optionsArgParse
+import filtrageDonnee.listeFiltre as filtre  
+
 
 
 #Récupération de l'emplacement du fichier si il y en a un
@@ -21,8 +29,8 @@ table_par_protocole = {}
 for (i) in range (0,longueur_PCAP):
     #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
     if PACAP[i].haslayer(Ether) :
-        ip_only = optionsArgParse.get_ip_only()
-        table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, PACAP[i], i + 1, ip_only)
+        filtres_actives = filtre.liste_filtre_EstActive()
+        table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, PACAP[i], i + 1, filtres_actives)
 
 
 

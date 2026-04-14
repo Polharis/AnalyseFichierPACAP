@@ -9,7 +9,7 @@ from datetime import timedelta
 
 #Créer des couples clé-valeur : type de payload Ethernet, paquets associés
 
-def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,ip_only):
+def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
     EtherType = paquet[Ether].payload.name
     #Si le payload en question n'a jamais été trouvé alors on le crée
     if EtherType not in table:
@@ -17,10 +17,25 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,ip_only):
     #On ajoute un dictionnaire par paquet
 
     #Si l'option ip_only est activée, on n'ajoute que les paquets de type IP ou IPv6
-    if ip_only:
-        if EtherType != 'IP' and EtherType != 'IPv6':
-            return table
+    if filtres_actives["ip_only"] and EtherType != 'IP' and EtherType != 'IPv6':
+        return table
         
+    #Si l'option arp_only est activée, on n'ajoute que les paquets de type ARP
+    if filtres_actives["arp_only"] and EtherType != 'ARP' :
+        return table
+    
+    #Si l'option ip_specifique est activée, on n'ajoute que les paquets provenant ou étant déstiné à l'adresse IP spécifiée
+    if filtres_actives["ip_specifique"] is not None:
+        if EtherType != 'IP' and EtherType != 'ARP' :
+            return table
+        if EtherType == 'IP' :
+            if paquet[IP].src != filtres_actives["ip_specifique"] and paquet[IP].dst != filtres_actives["ip_specifique"]:
+                return table
+        elif EtherType == 'ARP' :
+            if  paquet[ARP].psrc != filtres_actives["ip_specifique"] and paquet[ARP].pdst != filtres_actives["ip_specifique"]:
+                return table
+        
+
     table[EtherType].append(extraire_info(paquet, numero_paquet))
     return table
 

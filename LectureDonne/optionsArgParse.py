@@ -11,7 +11,13 @@ def ajouter_parser():
     #Option pour regrouper des paquets identiques sur une plage de temps donnée
     parser.add_argument("-p", "--plage-temps", help="La plage de temps à analyser (format: 'nbSecondes)", required=False)
     #Option pour n'afficher que les paquet de type IP ou IPV6
-    parser.add_argument("-i", "--ip-only", help="N'affiche que les paquets de type IP ou IPV6", required=False , action='store_true')
+    parser.add_argument("-filtre", "--filtre", help="Applique un filtre sur l'analyse des paquets." \
+                                                    "   Voicie la liste des filtre disponibles:" \
+                                                    "   'ip_only' : N'affiche que les paquets de type IP ou IPv6 |" \
+                                                    "   'arp_only' : N'affiche que les paquets de type ARP |" \
+                                                    "   une ip ex : '192.168.1.1' : N'affiche que les paquets provenant ou étant déstiné à de cette adresse IP |" \
+                                                    "", required=False)
+
     return parser.parse_args()
 
 
@@ -55,7 +61,7 @@ def get_emplacement_fichier():
         print("Erreur: chemin non adapté, le fichier PCAP par défaut à été sélectionné")
         return FICHIER_PCAP_DEFAUT
     
-def get_ip_only():
+def get_filtre():
     args = ajouter_parser()
-    return args.ip_only
+    return args.filtre
     
