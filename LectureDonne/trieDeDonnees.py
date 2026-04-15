@@ -3,6 +3,7 @@ import xml.etree.ElementTree
 from scapy.all import *
 import datetime  
 from datetime import timedelta  
+import socket
 #Cette fonction permet d'ajouter les informations d'un paquet ARP dans la liste PCAPARP
 
 
@@ -16,6 +17,7 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
         table[EtherType] = []
     #On ajoute un dictionnaire par paquet
 
+    #--------------- FILTRES ---------------
     #Si l'option ip_only est activée, on n'ajoute que les paquets de type IP ou IPv6
     if filtres_actives["ip_only"] and EtherType != 'IP' and EtherType != 'IPv6':
         return table
@@ -34,7 +36,29 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
         elif EtherType == 'ARP' :
             if  paquet[ARP].psrc != filtres_actives["ip_specifique"] and paquet[ARP].pdst != filtres_actives["ip_specifique"]:
                 return table
+            
+    #Si l'option port_specifique est activée, on n'ajoute que les paquets provenant ou étant déstiné au port spécifié
+    if filtres_actives["port_specifique"] is not None:
+        if EtherType != 'IP' :
+            return table
+        if not (paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP')) :
+            return table
+        if paquet[IP].sport != filtres_actives["port_specifique"] and paquet[IP].dport != filtres_actives["port_specifique"]:
+            return table
         
+    #Si l'option protocole_specifique est activée, on n'ajoute que les paquets de type IP avec le protocole de couche 4 spécifié
+    if filtres_actives["protocole_specifique"] is not None:
+        if EtherType != 'IP' and EtherType != 'IPv6' :
+            return table
+        if EtherType == 'IP' :
+            proto_name = get_proto_name(paquet[IP].proto)
+            if proto_name != filtres_actives["protocole_specifique"] :
+                return table
+        elif EtherType == 'IPv6' :
+            proto_name = get_proto_name(paquet[IPv6].nh)
+            if proto_name != filtres_actives["protocole_specifique"] :
+                return table
+    #---------------- FIN DES FILTRES ---------------
 
     table[EtherType].append(extraire_info(paquet, numero_paquet))
     return table
@@ -59,6 +83,7 @@ def get_proto_name(proto_num):
             return proto_map[proto_num] 
     return 'Unknown'
 
+
 #L'appel paquet.ptype renvoie un int qui est lié à un protocole de la couche 3,
 # cette fonction permet de faire le lien entre ce numéro et le nom du protocole
 def get_arp_proto_name(arp_ptype_num):
@@ -78,6 +103,7 @@ def extraire_info(paquet,num_paquet) :
     Infos = {
         'id' : num_paquet,
         #Date sous format AAAA-MM-JJ HH:MM:SS millisecondes
+        'type_payload': paquet[Ether].payload.name,
         'time': datetime.datetime.fromtimestamp(float(paquet.time)),
         'mac_src': paquet[Ether].src,
         'mac_dst': paquet[Ether].dst
@@ -100,6 +126,15 @@ def extraire_info(paquet,num_paquet) :
         Infos['source'] = paquet[ARP].psrc
         Infos['destination'] = paquet[ARP].pdst
         Infos['ni IP ni ARP'] = False
+    elif paquet.haslayer('IPv6') :
+        Infos['protocole IP'] = get_proto_name(paquet[IPv6].nh)
+        Infos['ttl'] = paquet[IPv6].hlim
+        Infos['source'] = paquet[IPv6].src
+        Infos['destination'] = paquet[IPv6].dst
+        Infos['ni IP ni ARP'] = False
+        if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
+            Infos['port_src'] = paquet.sport
+            Infos['port_dst'] = paquet.dport
     else :
         #Pour repérer les paquets avec des payloads particuliers
         Infos['ni IP ni ARP'] = True

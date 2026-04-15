@@ -16,7 +16,8 @@ def ajouter_parser():
                                                     "   'ip_only' : N'affiche que les paquets de type IP ou IPv6 |" \
                                                     "   'arp_only' : N'affiche que les paquets de type ARP |" \
                                                     "   une ip ex : '192.168.1.1' : N'affiche que les paquets provenant ou étant déstiné à de cette adresse IP |" \
-                                                    "", required=False)
+                                                    "   UN PORT ex : '64174' : N'affiche que les paquets provenant ou étant déstiné à ce port |" \
+                                                    "   Un type de protocole ip ex : 'TCP' : N'affiche que les paquets de type TCP |" , required=False)
 
     return parser.parse_args()
 
