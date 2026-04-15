@@ -65,23 +65,22 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
 
 #L'appel paquet.proto renvoie un int qui est lié à un protocole de la couche 4,
 # cette fonction permet de faire le lien entre ce numéro et le nom du protocole
+#Lire le fichier /etc/protocols pour faire le lien entre les numéros et les protocoles
 def get_proto_name(proto_num):
-    proto_map = {
-        1: 'ICMP',
-        6: 'TCP',
-        17: 'UDP',
-        41: 'IPv6',
-        47: 'GRE',
-        50: 'ESP',
-        51: 'AH',
-        58: 'ICMPv6',
-        89: 'OSPF',
-        132: 'SCTP'
-    }
-    for key in proto_map.keys() :
-        if key == proto_num :
-            return proto_map[proto_num] 
-    return 'Unknown'
+    with open("/etc/protocols", "r", encoding="utf-8", errors="ignore") as f:
+        for ligne in f:
+            ligne = ligne.split("#", 1)[0].strip()
+            if not ligne:
+                continue
+            champs = ligne.split()
+            if len(champs) < 2:
+                continue
+            try:
+                if int(champs[1]) == proto_num:
+                    return champs[0]
+            except ValueError:
+                continue
+    return "Unknown"
 
 
 #L'appel paquet.ptype renvoie un int qui est lié à un protocole de la couche 3,
