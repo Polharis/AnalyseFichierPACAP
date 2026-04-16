@@ -26,7 +26,7 @@ plage_temps = optionsArgParse.get_plage_temps()
 table_par_protocole = {}
 
 
-for (i) in range (0,longueur_PCAP):
+for (i) in range (0,100):
     #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
     if PACAP[i].haslayer(Ether) :
         filtres_actives = filtre.liste_filtre_EstActive()

@@ -82,6 +82,39 @@ def statsCoucheServiceDestination(dicoReseau) :
         stats_pourcentage[protos] = (stats[protos] / total_paquet) * 100
     return stats_pourcentage    
 
+#fait la moyenne du temps mis par chaque packet pout voyager entre la source et la destination
+def statsTempsVoyage(dicoReseau) :
+    # Collecte des temps par conversation (src, dst)
+    conversations = {}  # clé: (src, dst), valeur: liste des temps
+    for protocoles_couches_1 in dicoReseau.keys() : 
+        for paquet in dicoReseau[protocoles_couches_1] : 
+            if "source" in paquet.keys() and "destination" in paquet.keys() : 
+                key = (paquet["source"], paquet["destination"])
+                conversations.setdefault(key, []).append(paquet["time"])
+
+    # Calcule des RTT moyens pour chaque paire
+    rtts_moyens = {}
+    nb_rtts = {}
+    for (src, dst), times_out in conversations.items():
+        times_back = conversations.get((dst, src), [])
+        if times_back:
+            # Trie les temps
+            times_out.sort()
+            times_back.sort()
+            # Calcule les différences pour les paires (aller-retour)
+            num_pairs = min(len(times_out), len(times_back))
+            diffs = []
+            for i in range(num_pairs):
+                diff = times_back[i] - times_out[i]
+                if diff.total_seconds() > 0:
+                    diffs.append(diff.total_seconds())
+                    nb_rtts[(src, dst)] = i
+            if diffs:
+                avg_rtt = sum(diffs) / len(diffs)
+                rtts_moyens[(src, dst)] = avg_rtt
+                
+
+    return [rtts_moyens,nb_rtts]
 
 def creationRapport(mode,table) :
     rapport = ""
