@@ -82,6 +82,27 @@ def get_proto_name(proto_num):
                 continue
     return "Unknown"
 
+def get_service_name(port_num, proto='tcp'):
+    with open("/etc/services", "r", encoding="utf-8", errors="ignore") as f:
+        for ligne in f:
+            ligne = ligne.split("#", 1)[0].strip()
+            if not ligne:
+                continue
+            champs = ligne.split()
+            if len(champs) < 2:
+                continue
+            name = champs[0]
+            port_proto = champs[1]
+            if '/' in port_proto:
+                port_str, protocol = port_proto.split('/')
+                try:
+                    port = int(port_str)
+                    if port == port_num and protocol == proto:
+                        return name
+                except ValueError:
+                    continue
+    return "Unknown (souvent un port éphémère)"
+
 
 #L'appel paquet.ptype renvoie un int qui est lié à un protocole de la couche 3,
 # cette fonction permet de faire le lien entre ce numéro et le nom du protocole
@@ -112,28 +133,28 @@ def extraire_info(paquet,num_paquet) :
 
     #Dans cette section on va avoir des types d'informations différents selon le type de payload du paquet Ethernet
     if paquet.haslayer('IP') :
-        Infos['protocole IP'] = get_proto_name(paquet[IP].proto)
+        Infos['protocole_3'] = get_proto_name(paquet[IP].proto)
         Infos['ttl'] = paquet[IP].ttl
         Infos['source'] = paquet[IP].src
         Infos['destination'] = paquet[IP].dst
         Infos['ni IP ni ARP'] = False
         if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
-            Infos['port_src'] = paquet.sport
-            Infos['port_dst'] = paquet.dport
+            Infos['port_src'] = get_service_name(paquet[IP].sport)
+            Infos['port_dst'] = get_service_name(paquet[IP].dport)
     elif paquet.haslayer('ARP') : 
-        Infos['protocole ARP'] = get_arp_proto_name(paquet[ARP].ptype)
+        Infos['protocole_3'] = get_arp_proto_name(paquet[ARP].ptype)
         Infos['source'] = paquet[ARP].psrc
         Infos['destination'] = paquet[ARP].pdst
         Infos['ni IP ni ARP'] = False
     elif paquet.haslayer('IPv6') :
-        Infos['protocole IP'] = get_proto_name(paquet[IPv6].nh)
+        Infos['protocole'] = get_proto_name(paquet[IPv6].nh)
         Infos['ttl'] = paquet[IPv6].hlim
         Infos['source'] = paquet[IPv6].src
         Infos['destination'] = paquet[IPv6].dst
         Infos['ni IP ni ARP'] = False
         if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
-            Infos['port_src'] = paquet.sport
-            Infos['port_dst'] = paquet.dport
+            Infos['port_src'] = get_service_name(paquet[IP].sport)
+            Infos['port_dst'] = get_service_name(paquet[IP].dport)
     else :
         #Pour repérer les paquets avec des payloads particuliers
         Infos['ni IP ni ARP'] = True

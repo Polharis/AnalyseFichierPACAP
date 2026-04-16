@@ -5,8 +5,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from scapy.all import *
-import trieDeDonnees 
-import optionsArgParse
+import LectureDonne.trieDeDonnees as trieDeDonnees
+import LectureDonne.optionsArgParse as optionsArgParse
 import filtrageDonnee.listeFiltre as filtre  
 
 
@@ -26,7 +26,7 @@ plage_temps = optionsArgParse.get_plage_temps()
 table_par_protocole = {}
 
 
-for (i) in range (0,100):
+for (i) in range (0,longueur_PCAP):
     #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
     if PACAP[i].haslayer(Ether) :
         filtres_actives = filtre.liste_filtre_EstActive()
@@ -44,7 +44,8 @@ def get_table_par_protocole() :
 #Print de test
 #print(tableParProtocole.values())
 
-print(PACAP[13].show())
+print(PACAP[28].show())
+
 
 
 
