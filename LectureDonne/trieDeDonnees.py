@@ -67,7 +67,14 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
 # cette fonction permet de faire le lien entre ce numéro et le nom du protocole
 #Lire le fichier /etc/protocols pour faire le lien entre les numéros et les protocoles
 def get_proto_name(proto_num):
-    with open("/etc/protocols", "r", encoding="utf-8", errors="ignore") as f:
+    path = "/etc/protocol"
+    if os.path.exists("/etc/protocols") :
+        path = "/etc/protocols"
+    else :
+        #Chemin alternatif si on est sur windows
+        path = "/usr/share/protocol"
+        
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for ligne in f:
             ligne = ligne.split("#", 1)[0].strip()
             if not ligne:
