@@ -8,6 +8,14 @@ def ajouter_parser():
     parser = argparse.ArgumentParser(description="Analyse d'un fichier pcapng")
     #Option permettant de choisir un fichier PCAP en dehors du projet
     parser.add_argument("-f", "--fichier", help="Le chemin du fichier pcapng à analyser", required=False)
+    #Option pour choisir le mode statistique à afficher
+    parser.add_argument("-s", "--statistiques", help="Permet de selectionner le mode statistique. Ily a plusireurs modes disponibles : " \
+                                                    "   'CoucheDeux' : Affiche les statistiques de la couche 2 |" \
+                                                    "   'CoucheTrois' : Affiche les statistiques de la couche 3 |" \
+                                                    "   'CoucheServiceSource' : Affiche les statistiques des services sources |" \
+                                                    "   'CoucheServiceDestination' : Affiche les statistiques des services destination" , required=False)
+    #Option pour choisir le mode rapport à afficher
+    parser.add_argument("-r", "--rapport", help="Permet de selectionner le mode rapport sous forme CSV", action="store_true", required=False)
     #Option pour regrouper des paquets identiques sur une plage de temps donnée
     parser.add_argument("-p", "--plage-temps", help="La plage de temps à analyser (format: 'nbSecondes)", required=False)
     #Option pour n'afficher que les paquet de type IP ou IPV6
@@ -65,4 +73,12 @@ def get_emplacement_fichier():
 def get_filtre():
     args = ajouter_parser()
     return args.filtre
+
+def get_statistiques():
+    args = ajouter_parser()
+    return args.statistiques
+
+def get_rapport():
+    args = ajouter_parser()
+    return args.rapport
     

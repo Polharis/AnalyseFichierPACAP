@@ -1,5 +1,4 @@
 from scapy.all import *
-import lectureDonneFichierUnique  
 import csv
 
 

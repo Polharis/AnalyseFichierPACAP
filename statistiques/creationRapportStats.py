@@ -90,12 +90,14 @@ def statsTempsVoyage(dicoReseau) :
         for paquet in dicoReseau[protocoles_couches_1] : 
             if "source" in paquet.keys() and "destination" in paquet.keys() : 
                 key = (paquet["source"], paquet["destination"])
+                # setDefault très pratique car évite de devoir vérifier si la clé existe déjà ou pas
                 conversations.setdefault(key, []).append(paquet["time"])
 
-    # Calcule des RTT moyens pour chaque paire
-    rtts_moyens = {}
-    nb_rtts = {}
+    # Calcule des TAR (temps aller retour)moyens pour chaque paire
+    tars_moyens = {}
+    nb_tars = {}
     for (src, dst), times_out in conversations.items():
+        #On récupère le temps du couple inverse (dst, src) pour trouver les temps de retour
         times_back = conversations.get((dst, src), [])
         if times_back:
             # Trie les temps
@@ -108,13 +110,13 @@ def statsTempsVoyage(dicoReseau) :
                 diff = times_back[i] - times_out[i]
                 if diff.total_seconds() > 0:
                     diffs.append(diff.total_seconds())
-                    nb_rtts[(src, dst)] = i
+                    nb_tars[(src, dst)] = i +1
             if diffs:
                 avg_rtt = sum(diffs) / len(diffs)
-                rtts_moyens[(src, dst)] = avg_rtt
+                tars_moyens[(src, dst)] = avg_rtt
                 
 
-    return [rtts_moyens,nb_rtts]
+    return [tars_moyens,nb_tars]
 
 def creationRapport(mode,table) :
     rapport = ""
@@ -150,6 +152,22 @@ def creationRapport(mode,table) :
                 rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
             else :
                 rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
+
+    if mode == "TempsVoyage" :
+        rapport += "Statistque sur le temps de voyage des paquets\n"
+        stats = statsTempsVoyage(table)
+        tars_moyens = stats[0]
+        nb_tars = stats[1]
+        if not tars_moyens :
+            rapport += "Aucune paire de paquets aller-retour n'a été trouvée pour calculer les temps de voyage moyens.\n"
+        else : 
+            for conversation in tars_moyens.keys() :
+                
+                rapport += (
+                    "Conversation entre " + conversation[0] + " et " + conversation[1] +
+                    " : TAR moyen de " + str(tars_moyens[conversation]) + " secondes, basé sur " +
+                    str(nb_tars[conversation]) + " paires aller-retour\n"
+                )
 
     return rapport
 
