@@ -13,7 +13,8 @@ def ajouter_parser():
                                                     "   'CoucheDeux' : Affiche les statistiques de la couche 2 |" \
                                                     "   'CoucheTrois' : Affiche les statistiques de la couche 3 |" \
                                                     "   'CoucheServiceSource' : Affiche les statistiques des services sources |" \
-                                                    "   'CoucheServiceDestination' : Affiche les statistiques des services destination" , required=False)
+                                                    "   'CoucheServiceDestination' : Affiche les statistiques des services destination" \
+                                                    "   'TempsVoyage' : Affiche les statistiques du temps de voyage" , required=False)
     #Option pour choisir le mode rapport à afficher
     parser.add_argument("-r", "--rapport", help="Permet de selectionner le mode rapport sous forme CSV", action="store_true", required=False)
     #Option pour choisir le mode graphique à afficher

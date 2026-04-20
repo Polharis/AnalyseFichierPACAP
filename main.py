@@ -21,8 +21,8 @@ if statistique_selectionner is not None :
         print (stats.creationRapport("CoucheServiceSource",table_par_protocole))
     elif statistique_selectionner == "CoucheServiceDestination" :
          print (stats.creationRapport("CoucheServiceDestination",table_par_protocole))
-    elif statistique_selectionner == "TempsVoyage" :
-         print (stats.creationRapport("TempsVoyage",table_par_protocole))
+    elif statistique_selectionner == "TempsVoyageMoyen" :
+         print (stats.creationRapport("TempsVoyageMoyen",table_par_protocole))
 
 
 elif options.get_rapport() :
@@ -40,11 +40,15 @@ elif options.get_graphique() :
         graphiques.statistiqueSousgraphique(stats.statsCoucheServiceSource(table_par_protocole),"CoucheServiceSource")
     elif graphique_selectionner == "CoucheServiceDestination" :
          graphiques.statistiqueSousgraphique(stats.statsCoucheServiceDestination(table_par_protocole),"CoucheServiceDestination")
-    elif graphique_selectionner == "TempsVoyage" :
-         graphiques.statistiqueTempsVoyageSousgraphique(stats.statsTempsVoyage(table_par_protocole))
+    elif graphique_selectionner == "TempsVoyageMoyen" :
+         graphiques.statistiqueTempsVoyageMoyenSousgraphique(stats.statsTempsVoyageMoyen(table_par_protocole))
+    elif graphique_selectionner == "TempsVoyageUnitaire" :
+         graphiques.statistiqueTempsVoyageUnitaireSousgraphique(stats.statsTempsVoyageUnitaire(table_par_protocole))
+    elif graphique_selectionner == "TempsVoyageRepartition" :
+         graphiques.statistiqueTempsVoyageRepartitionSousgraphique(stats.statsTempsVoyageUnitaire(table_par_protocole))
 else :
-    print("Aucun mode n'a été sélectionné, veuillez choisir l'option -s ou -r pour afficher les statistiques ou le rapport CSV" \
-    "Pour plus d'informations sur les options disponibles, veuillez utiliser l'option -h ou --help")
+    print("Aucun mode n'a été sélectionné, veuillez choisir l'option -s , -g ou -r pour afficher les statistiques, les graphiques ou le rapport CSV" \
+    " Pour plus d'informations sur les options disponibles, veuillez utiliser l'option -h ou --help")
 
 #liste chemin du fichier PCAP à analyser
 #/home/stagetesa/Downloads/NMAP_PROBE.pcap
