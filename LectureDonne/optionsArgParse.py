@@ -24,8 +24,8 @@ def ajouter_parser():
                                                   " - 'CoucheTrois'  " \
                                                   " - 'CoucheServiceSource' " \
                                                   " - 'CoucheServiceDestination'  " \
-                                                  " - 'TempsVoyage'  " \
-                                                  "Ainsi que d'autres graphiques : ", required=False)
+                                                  "Ainsi que d'autres graphiques : " \
+                                                  " - 'InterEspacement'  ", required=False)
     #Option pour regrouper des paquets identiques sur une plage de temps donnée
     parser.add_argument("-p", "--plage-temps", help="La plage de temps à analyser (format: 'nbSecondes)", required=False)
     #Option pour n'afficher que les paquet de type IP ou IPV6

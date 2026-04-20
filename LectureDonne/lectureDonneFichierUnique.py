@@ -44,7 +44,7 @@ def get_table_par_protocole() :
 #Print de test
 #print(tableParProtocole.values())
 
-#print(PACAP[28].show())
+
 
 
 

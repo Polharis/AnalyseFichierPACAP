@@ -82,6 +82,90 @@ def statsCoucheServiceDestination(dicoReseau) :
         stats_pourcentage[protos] = (stats[protos] / total_paquet) * 100
     return stats_pourcentage    
 
+def liste_différence_src_dst_adjacente(dicoReseau) :
+    src_dst = {}
+    src_dst_diff = {}
+    for key in dicoReseau.keys() :
+        for paquet in dicoReseau[key] :
+            if "source" in paquet.keys() and "destination" in paquet.keys() :
+                src_dst.setdefault((paquet["source"],paquet["destination"]),[]).append(paquet["time"])
+    for couple in src_dst.keys() :
+        liste_difference = []
+        src_dst[couple].sort()
+        for i in range (len(src_dst[couple])) :
+            if i == len(src_dst[couple]) -1 :
+                break
+            if i % 2 == 0 :
+                n = src_dst[couple][i].timestamp() * 1000 #en millisecondes
+                n_plus_un = src_dst[couple][i+1].timestamp() * 1000 #en millisecondes
+                liste_difference.append(n_plus_un - n)
+        src_dst_diff.setdefault(couple,liste_difference)
+    return src_dst_diff
+
+def creationRapport(mode,table) :
+    rapport = ""
+    if mode == "CoucheDeux" : 
+        rapport += "Statistque sur la deuxième couche\n"
+        stats = statsCoucheDeux(table)
+        for stat in stats.keys() : 
+            if stat == "total_paquet" :
+                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
+            else :
+                rapport += " protocols : " + stat + " présents à " + str(stats[stat]) + "%\n"
+    if mode == "CoucheTrois" :
+        rapport += "Statistque sur la troisième couche\n"
+        stats = statsCoucheTrois(table)
+        for stat in stats.keys() : 
+            if stat == "total_paquet" :
+                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
+            else :
+                rapport += " protocols : " + stat + " présents à " + str(stats[stat]) + " %\n"
+    if mode == "CoucheServiceSource" :
+        rapport += "Statistque sur les services sources\n"
+        stats = statsCoucheServiceSource(table)
+        for stat in stats.keys() : 
+            if stat == "total_paquet" :
+                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
+            else :
+                rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
+    if mode == "CoucheServiceDestination" :
+        rapport += "Statistque sur les services destinations\n"
+        stats = statsCoucheServiceDestination(table)
+        for stat in stats.keys() : 
+            if stat == "total_paquet" :
+                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
+            else :
+                rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
+
+    if mode == "TempsVoyageMoyen" :
+        rapport += "Statistque sur le temps de voyage des paquets\n"
+        stats = statsTempsVoyageMoyen(table)
+        tars_moyens = stats[0]
+        nb_tars = stats[1]
+        if not tars_moyens :
+            rapport += "Aucune paire de paquets aller-retour n'a été trouvée pour calculer les temps de voyage moyens.\n"
+        else : 
+            for conversation in tars_moyens.keys() :
+                
+                rapport += (
+                    "Conversation entre " + conversation[0] + " et " + conversation[1] +
+                    " : TAR moyen de " + str(tars_moyens[conversation]) + " secondes, basé sur " +
+                    str(nb_tars[conversation]) + " paires aller-retour\n"
+                )
+
+    return rapport
+
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------
+# ----------------------- A mettre entre parenthèse car je n'ai pas tout les outils -----------------
+
+
 #Liste des temps de voyage pour chaque conversation (src, dst) 
 # pour de futures analyses plus poussées sur les temps de voyage (ex : distribution des temps de voyage, etc...)
 def dicoTempsParConversation(dicoReseau) :
@@ -150,58 +234,5 @@ def statsTempsVoyageUnitaire(dicoReseau) :
                     tars_unitaires.setdefault((src,dst),[]).append(diff.total_seconds())
 
     return tars_unitaires
-
-def creationRapport(mode,table) :
-    rapport = ""
-    if mode == "CoucheDeux" : 
-        rapport += "Statistque sur la deuxième couche\n"
-        stats = statsCoucheDeux(table)
-        for stat in stats.keys() : 
-            if stat == "total_paquet" :
-                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
-            else :
-                rapport += " protocols : " + stat + " présents à " + str(stats[stat]) + "%\n"
-    if mode == "CoucheTrois" :
-        rapport += "Statistque sur la troisième couche\n"
-        stats = statsCoucheTrois(table)
-        for stat in stats.keys() : 
-            if stat == "total_paquet" :
-                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
-            else :
-                rapport += " protocols : " + stat + " présents à " + str(stats[stat]) + " %\n"
-    if mode == "CoucheServiceSource" :
-        rapport += "Statistque sur les services sources\n"
-        stats = statsCoucheServiceSource(table)
-        for stat in stats.keys() : 
-            if stat == "total_paquet" :
-                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
-            else :
-                rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
-    if mode == "CoucheServiceDestination" :
-        rapport += "Statistque sur les services destinations\n"
-        stats = statsCoucheServiceDestination(table)
-        for stat in stats.keys() : 
-            if stat == "total_paquet" :
-                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
-            else :
-                rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
-
-    if mode == "TempsVoyageMoyen" :
-        rapport += "Statistque sur le temps de voyage des paquets\n"
-        stats = statsTempsVoyageMoyen(table)
-        tars_moyens = stats[0]
-        nb_tars = stats[1]
-        if not tars_moyens :
-            rapport += "Aucune paire de paquets aller-retour n'a été trouvée pour calculer les temps de voyage moyens.\n"
-        else : 
-            for conversation in tars_moyens.keys() :
-                
-                rapport += (
-                    "Conversation entre " + conversation[0] + " et " + conversation[1] +
-                    " : TAR moyen de " + str(tars_moyens[conversation]) + " secondes, basé sur " +
-                    str(nb_tars[conversation]) + " paires aller-retour\n"
-                )
-
-    return rapport
 
 

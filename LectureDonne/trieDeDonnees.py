@@ -59,7 +59,7 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
             if proto_name != filtres_actives["protocole_specifique"] :
                 return table
     #---------------- FIN DES FILTRES ---------------
-
+   
     table[EtherType].append(extraire_info(paquet, numero_paquet))
     return table
 
@@ -154,17 +154,33 @@ def extraire_info(paquet,num_paquet) :
         Infos['destination'] = paquet[ARP].pdst
         Infos['ni IP ni ARP'] = False
     elif paquet.haslayer('IPv6') :
-        Infos['protocole'] = get_proto_name(paquet[IPv6].nh)
+        Infos['protocole_3'] = get_proto_name(paquet[IPv6].nh)
         Infos['ttl'] = paquet[IPv6].hlim
         Infos['source'] = paquet[IPv6].src
         Infos['destination'] = paquet[IPv6].dst
         Infos['ni IP ni ARP'] = False
         if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
-            Infos['port_src'] = get_service_name(paquet[IP].sport)
-            Infos['port_dst'] = get_service_name(paquet[IP].dport)
+            Infos['port_src'] = get_service_name(paquet[IPv6].sport)
+            Infos['port_dst'] = get_service_name(paquet[IPv6].dport)
     else :
         #Pour repérer les paquets avec des payloads particuliers
         Infos['ni IP ni ARP'] = True
+        #On recherche tout de même une source et une destination dans les couches supérieures
+        #  pour pouvoir faire des statistiques plus précises sur les temps de voyage entre les conversations
+        #Même si ce cas n'est pas censé arriver souvent, il peut arriver que des paquets aient des payloads Ethernet particuliers 
+        # mais contiennent quand même des informations de source et destination dans les couches supérieures
+        if paquet.haslayer(TCP):
+            transport = paquet[TCP]
+        elif paquet.haslayer(UDP):
+            transport = paquet[UDP]
+        elif paquet.haslayer(SCTP):
+            transport = paquet[SCTP]
+        else:
+            transport = None
+
+        if transport is not None:
+            Infos['port_src'] = get_service_name(transport.sport)
+            Infos['port_dst'] = get_service_name(transport.dport)
     return Infos
 
 
