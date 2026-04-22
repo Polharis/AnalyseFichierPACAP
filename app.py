@@ -8,7 +8,7 @@ import subprocess
 import scriptPy.graphiques.creationGraphiques as graphiques
 import scriptPy.LectureDonne.optionsArgParse as options
 import  scriptPy.LectureDonne.lectureDonneFichierUnique as recupDico  
-import scriptPy.statistiques.creationRapportStats as stats
+import scriptPy.main as main
 
 
 
@@ -16,16 +16,6 @@ import scriptPy.statistiques.creationRapportStats as stats
 app = Flask(__name__)
 
 
-
-
-def fig_to_base64(fig):
-    """Convertit la figure en base64 sans toucher au disque"""
-    buf = io.BytesIO()          # Un "fichier" en mémoire vive
-    fig.savefig(buf, format='png', bbox_inches='tight', dpi=150)
-    buf.seek(0)                 # Remet le curseur au début
-    img_b64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close(fig)              # Libère la mémoire matplotlib
-    return img_b64
 
 @app.route('/')
 def index():
@@ -38,8 +28,11 @@ def generer():
     options.appliquer_filtres(params)
     #-------------------------------------
 
-    dicoReseau = recupDico.get_table_par_protocole()
-    fig = graphiques.histogrammeInterEspacement(stats.liste_différence_src_dst_adjacente(dicoReseau))
+    typeGraphique = params.get('typeGraphique', None)
+
+    fig = main.genererGraphique(typeGraphique)
+
+ 
 
     if fig is None:
         return jsonify({ 'success': False, 'error': 'Aucune donnée disponible.' })
@@ -47,8 +40,20 @@ def generer():
     return jsonify({ 'success': True, 'graphique': fig })  
 
 
+@app.route('/genererRapportCsv', methods=['POST'])
+def generer_csv():
+    print("okkkkkkkkkkkkkkkkkkkkkkkkk")
+    #Application des filtres
+    params = request.get_json(force=True, silent=True) or {}
+    options.appliquer_filtres(params)
+    #-------------------------------------
+    typeGraphique = params.get('typeGraphique', None)
 
     
+
+    main.genererRapportCsv()
+
+    return jsonify({ 'success': True})  
 
    
 # adresse : http://localhost:5000/

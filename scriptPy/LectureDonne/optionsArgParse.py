@@ -22,6 +22,9 @@ def get_plage_temps():
     return None
 
 def get_emplacement_fichier():
+
+    if "chemin_fichier" in filtres_à_appliquer.keys() and filtres_à_appliquer["chemin_fichier"] is not None :
+        return filtres_à_appliquer["chemin_fichier"]
   
     return FICHIER_PCAP_DEFAUT
    

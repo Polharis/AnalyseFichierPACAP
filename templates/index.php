@@ -10,9 +10,16 @@
 <body>
   <h1>Dashboard Analyse Réseau</h1>
 
+  <form id="formulaireFichier" method="GET" enctype="multipart/form-data">
+    <label for="fichier_pcap">Fichier pcap à analyser :</label>
+    <input type="text" id="fichier_pcap" name="fichier_pcap" placeholder="Ex: /home/user/fichier.pcap">
+  </form> <br>
   
   <button name="bouton_options" id="bouton_options" onclick="changer_etat_formulaire()">Ouvrir les options</button>
-  <button onclick="generer()">Générer le graphique</button>
+  <button id ="buttonGraphics" onclick="changer_etat_option_graphique()">Ouvrir les options graphiques</button>
+  <button id="genererRapportCsv" onclick="genererRapportCsv()">Générer rapport CSV</button>
+  <button id="genererRapportStatistique" onclick="genererRapportStatistique()">Générer rapport statistique</button>
+
 
 
   <!-- Formulaire caché par défaut -->
@@ -41,11 +48,24 @@
             
         </form>
  </div>
+
+ <div id="casePourGraphique">
+
+    <h2>Liste des graphiques</h2>
+    <button id="CoucheDeux" onclick="generer('CoucheDeux')">CoucheDeux</button>
+    <button id="CoucheTrois" onclick="generer('CoucheTrois')">CoucheTrois</button>
+    <button id="CoucheServiceSource" onclick="generer('CoucheServiceSource')">CoucheServiceSource</button>
+    <button id="CoucheServiceDestination" onclick="generer('CoucheServiceDestination')">CoucheServiceDestination</button>
+    <button id="InterEspacement" onclick="generer('InterEspacement')">InterEspacement</button>
+
+ </div>
+    
  <!--   fin du formulaire-->
       
 
   <p id="chargement">Génération en cours...</p>
   <p id="erreur"></p>
+  <p id="succesCSV">Le rapport CSV à bien été généré. Il est trouvable dans le dossier DataOutput du projet git</p>
 
   <div id="graphique" style="width:100%; height:600px;"></div>
 

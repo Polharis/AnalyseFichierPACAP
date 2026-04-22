@@ -46,7 +46,7 @@ def creationCSVtoutesInfos(table_par_protocole):
 
 
     # Écrire le CSV
-    with open('DataOutput/data.csv', 'w', newline='', encoding='utf-8') as f:
+    with open('scriptPy/DataOutput/data.csv', 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         for lignes in toutesInfos :
             writer.writerow(lignes)

@@ -10,7 +10,7 @@ import json
 
 def statistiqueSousgraphique(stats_table, graph_type) : 
     #Cette fonction prend en entrée une table de statistiques et retourne un graphique 
-    # Réaliser avec panda se servant de matplotlib pour faire le graphique
+    # Réaliser avec plotly pour retourner du JSON
     stats_table.pop("total_paquet", None)
     liste_cle_a_supprimer = []
     for key in stats_table.keys() :
@@ -21,19 +21,26 @@ def statistiqueSousgraphique(stats_table, graph_type) :
         stats_table["Other"] += stats_table[key]
         stats_table.pop(key, None)
 
-    graph = pd.Series(stats_table)
-    graph.plot(kind="pie", autopct='%1.1f%%')
+    # Déterminer le type d'information
     if graph_type == "CoucheServiceDestination" or graph_type == "CoucheServiceSource" :
         information = "services"
     else : 
         information = "protocoles"
 
-    plt.title("Graphique des statistiques de la " + graph_type)
+    # Créer le graphique en camembert avec Plotly
+    fig = go.Figure(data=[go.Pie(
+        labels=list(stats_table.keys()),
+        values=list(stats_table.values()),
+        textposition='inside',
+        textinfo='percent+label'
+    )])
 
+    fig.update_layout(
+        title=f"Graphique des statistiques de la {graph_type}",
+        xaxis_title=f"Pourcentage de {information} sur l'ensemble des paquets"
+    )
 
-    plt.xlabel("porcentage de " + information + "sur l'ensemble des paquets")
-    plt.tight_layout()
-    plt.show()
+    return fig.to_json()
 
 
 #Créer un histogramme de l'inter-espacement entre les paquets pour chaque conversation (src, dst)
@@ -61,8 +68,13 @@ def histogrammeInterEspacement(dicoReseau):
 
 
 
-
-
+def choisirGraphique(stats_table, typeGraphique) :
+    if typeGraphique == "CoucheDeux" or typeGraphique == "CoucheTrois" or typeGraphique == "CoucheServiceSource" or typeGraphique == "CoucheServiceDestination" :
+        return statistiqueSousgraphique(stats_table, typeGraphique)
+    elif typeGraphique == "InterEspacement" :
+        return histogrammeInterEspacement(stats_table)
+    else : 
+        return None
 
 
 

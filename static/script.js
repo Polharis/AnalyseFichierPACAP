@@ -1,4 +1,6 @@
     est_formulaire_filtre_ouvert = false;
+    est_options_graphique_ouvert = false;
+
     function changer_etat_formulaire(){
         if (est_formulaire_filtre_ouvert) {
             fermerFormulaire();
@@ -6,6 +8,16 @@
         } else {
             afficherFormulaire();
             est_formulaire_filtre_ouvert = true;
+        }
+    }
+
+    function changer_etat_option_graphique(){
+        if (est_options_graphique_ouvert) {
+            cacherOptionGraphique();
+            est_options_graphique_ouvert = false;
+        } else {
+            afficherOptionGraphique();
+            est_options_graphique_ouvert = true;
         }
     }
     
@@ -20,8 +32,69 @@
       document.getElementById('bouton_options').textContent = 'Ouvrir les options';
     }
 
+    function afficherOptionGraphique() {
+        document.getElementById('casePourGraphique').style.display = 'block';
+        document.getElementById('buttonGraphics').textContent = 'Fermer les options graphiques';
+    }
 
-    async function generer() {
+    function cacherOptionGraphique() {
+        document.getElementById('casePourGraphique').style.display = 'none';
+        document.getElementById('buttonGraphics').textContent = 'Ouvrir les options graphiques';
+    }
+
+
+    async function genererRapportCsv() {
+      try {
+        // Affiche le message de chargement
+        document.getElementById('chargement').style.display = 'block';
+        document.getElementById('erreur').textContent = '';
+
+        // filtres sur les données 
+        const proto_filtre = document.querySelector('input[name="proto_filtre"]:checked').value;
+        const ip_specifique = document.getElementById('ip_specifique').value;
+        const protocol_specifique = document.getElementById('protocol_specifique').value;
+        const port_specifique = document.getElementById('port_specifique').value;
+        const plage_temps = document.getElementById('plage_temps').value;
+        const chemin_fichier = document.getElementById('fichier_pcap').value;
+
+        const filtres = {
+        proto_filtre: proto_filtre,
+        ip_specifique: ip_specifique,
+        protocol_specifique: protocol_specifique,
+        port_specifique: port_specifique,
+        plage_temps: plage_temps,
+        chemin_fichier: chemin_fichier
+        };
+        
+
+        const res = await fetch('/genererRapportCsv', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filtres)
+        });
+
+        const data = await res.json();
+
+
+
+        document.getElementById('chargement').style.display = 'none';
+        if (data.success) {
+          document.getElementById('succesCSV').style.display = 'block';
+        } else {
+          document.getElementById('erreur').textContent = 'Erreur : ' + data.error;
+        }
+
+       
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('erreur').textContent = 'Erreur: ' + error.message;
+            document.getElementById('chargement').style.display = 'none';
+      }
+    }
+
+
+
+    async function generer(typeGraphique) {
       try {
         // Affiche le message de chargement
         document.getElementById('chargement').style.display = 'block';
@@ -34,6 +107,7 @@
         const protocol_specifique = document.getElementById('protocol_specifique').value;
         const port_specifique = document.getElementById('port_specifique').value;
         const plage_temps = document.getElementById('plage_temps').value;
+        const chemin_fichier = document.getElementById('fichier_pcap').value;
         
 
       const filtres = {
@@ -41,7 +115,9 @@
         ip_specifique: ip_specifique,
         protocol_specifique: protocol_specifique,
         port_specifique: port_specifique,
-        plage_temps: plage_temps
+        plage_temps: plage_temps,
+        typeGraphique: typeGraphique,
+        chemin_fichier: chemin_fichier
       };
 
      
