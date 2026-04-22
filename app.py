@@ -8,7 +8,8 @@ import subprocess
 import scriptPy.graphiques.creationGraphiques as graphiques
 import scriptPy.LectureDonne.optionsArgParse as options
 import  scriptPy.LectureDonne.lectureDonneFichierUnique as recupDico  
-import statistiques.creationRapportStats as stats
+import scriptPy.statistiques.creationRapportStats as stats
+
 
 
 
@@ -32,7 +33,11 @@ def index():
 
 @app.route('/generer', methods=['POST'])
 def generer():
+    #Application des filtres
     params = request.get_json(force=True, silent=True) or {}
+    options.appliquer_filtres(params)
+    #-------------------------------------
+
     dicoReseau = recupDico.get_table_par_protocole()
     fig = graphiques.histogrammeInterEspacement(stats.liste_différence_src_dst_adjacente(dicoReseau))
 
@@ -46,8 +51,9 @@ def generer():
     
 
    
-
+# adresse : http://localhost:5000/
 app.run(debug=True, host='127.0.0.1', port=5000)
+
 
 #liste chemin du fichier PCAP à analyser
 #/home/stagetesa/Downloads/NMAP_PROBE.pcap

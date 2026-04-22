@@ -12,32 +12,38 @@ def filtre_Selectionner() :
     return filtre
 
 def filtre_ipOnly_EstActive() : 
-    if filtre_Selectionner() == "ip_only" :
+    if "proto_filtre" in filtre_Selectionner().keys() and filtre_Selectionner()["proto_filtre"] == "ip_only" :
         return True
     return False
 
 def filtre_arpOnly_EstActive() :
-    if filtre_Selectionner() == "arp_only" :
+    if "proto_filtre" in filtre_Selectionner().keys() and filtre_Selectionner()["proto_filtre"] == "arp_only" :
         return True
     return False
 
 def filtre_ipSpecifique_EstActive() :
-    filtre = filtre_Selectionner()
-    estUneip = True
-    try:
-        #Si on ne peut pas utiliser ip_address, c'est que le filtre n'est pas une adresse IP
-        ipaddress.ip_address(filtre)
+    if "ip_specifique" in filtre_Selectionner().keys() and filtre_Selectionner()["ip_specifique"] is not None :
+        filtre = filtre_Selectionner()["ip_specifique"]
+        estUneip = True
+        try:
+            #Si on ne peut pas utiliser ip_address, c'est que le filtre n'est pas une adresse IP
+            ipaddress.ip_address(filtre)
 
-    except ValueError:
+        except ValueError:
 
-        estUneip = False
+            estUneip = False
 
-    if filtre is not None and estUneip: #Vérifie que le filtre ressemble à une adresse IP
-        return True
-    return False
+        if filtre is not None and estUneip: #Vérifie que le filtre ressemble à une adresse IP
+            return True
+        return False
+    else : 
+        return False
 
 def filtre_portSpecifique_EstActive() :
-    filtre = filtre_Selectionner()
+    if "port_specifique" in filtre_Selectionner().keys() and filtre_Selectionner()["port_specifique"] is not None :
+        filtre = filtre_Selectionner()["port_specifique"]
+    else :
+        return False
     estUnPort = True
     if filtre is None :
         return False
@@ -57,10 +63,11 @@ def filtre_portSpecifique_EstActive() :
 
 
 def filtre_protocoleSpecifique_EstActive() :
-    filtre = filtre_Selectionner()
-    protocoles_ip = ['TCP', 'UDP', 'SCTP', 'ICMP', 'ICMPv6']
-    if filtre in protocoles_ip :
-        return True
+    if "protocole_specifique" in filtre_Selectionner().keys() and filtre_Selectionner()["protocole_specifique"] is not None :
+        filtre = filtre_Selectionner()["protocole_specifique"]
+        protocoles_ip = ['TCP', 'UDP', 'SCTP', 'ICMP', 'ICMPv6']
+        if filtre in protocoles_ip :
+            return True
     return False
 
 def liste_filtre_EstActive() :
@@ -76,17 +83,17 @@ def liste_filtre_EstActive() :
         filtres["arp_only"] = False
 
     if filtre_ipSpecifique_EstActive() :
-        filtres["ip_specifique"] = filtre_Selectionner()
+        filtres["ip_specifique"] = filtre_Selectionner()["ip_specifique"]
     else :
         filtres["ip_specifique"] = None
 
     if filtre_portSpecifique_EstActive() :
-        filtres["port_specifique"] = int(filtre_Selectionner())
+        filtres["port_specifique"] = int(filtre_Selectionner()["port_specifique"])
     else :
         filtres["port_specifique"] = None
 
     if filtre_protocoleSpecifique_EstActive() :
-        filtres["protocole_specifique"] = filtre_Selectionner()
+        filtres["protocole_specifique"] = filtre_Selectionner()["protocole_specifique"]
     else :
         filtres["protocole_specifique"] = None
         

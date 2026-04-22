@@ -10,7 +10,8 @@
 <body>
   <h1>Dashboard Analyse Réseau</h1>
 
-  <button onclick="changer_etat_formulaire()">Ouvrir les options</button>
+  
+  <button name="bouton_options" id="bouton_options" onclick="changer_etat_formulaire()">Ouvrir les options</button>
   <button onclick="generer()">Générer le graphique</button>
 
 
@@ -19,20 +20,25 @@
     <h2>Options d'analyse</h2>
     
 
-        <form id="formulaireFiltre" method = "POST">
-            <label for="ip_only">IP uniquement</label>
-            <input type="checkbox" id="ip_only" name="ip_only"> <br>
+        <form id="formulaireFiltre" method = "GET">
 
-            <label for="arp_only">ARP uniquement</label>
-            <input type="checkbox" id="arp_only" name="arp_only"> <br>
+            <label>IP uniquement</label>
+            <input type="radio" id="proto_filtre" name="proto_filtre" value="ip_only"><br>
 
-            <input type="text" id = "ip spécifique" name = "ip spécifique" placeholder="IP spécifique à analyser"> <br>
+            <label>ARP uniquement</label> 
+            <input type="radio" id="proto_filtre" name="proto_filtre" value="arp_only"><br>
 
-            <input type="text" id = "port" name = "port" placeholder="Port à analyser"> <br>
+            <label> Aucun filtre</label> 
+            <input type="radio" name="proto_filtre" value="none" checked> <br>
 
-            <input type="text" id = "protocole" name = "protocole" placeholder="Protocole à analyser"> <br>
+            <input type="text" id = "ip_specifique" name = "ip_specifique" placeholder="IP spécifique à analyser"> <br>
+
+            <input type="text" id = "protocol_specifique" name = "protocol_specifique" placeholder="Protocole à analyser"> <br>
+
+            <input type="text" id = "port_specifique" name = "port_specifique" placeholder="Port à analyser"> <br>
+
+            <input type="text" id = "plage_temps" name = "plage_temps" placeholder="Plage de temps en secondes"> <br>
             
-            <input type="submit" value="Valider" >
         </form>
  </div>
  <!--   fin du formulaire-->
