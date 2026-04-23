@@ -11,8 +11,7 @@ FICHIER_PCAP_DEFAUT = os.path.join(
 filtres_à_appliquer = {}
 
 def appliquer_filtres(params):
-    print("Application des filtres : ", params)
-    print(params["port_specifique"])
+
     #Ici on applique les filtres en fonction des paramètres reçus
     for key, value in params.items():
         filtres_à_appliquer[key] = value
@@ -23,7 +22,7 @@ def get_plage_temps():
 
 def get_emplacement_fichier():
 
-    if "chemin_fichier" in filtres_à_appliquer.keys() and filtres_à_appliquer["chemin_fichier"] is not None :
+    if "chemin_fichier" in filtres_à_appliquer.keys() and filtres_à_appliquer["chemin_fichier"] is not None and filtres_à_appliquer["chemin_fichier"] != "" :
         return filtres_à_appliquer["chemin_fichier"]
   
     return FICHIER_PCAP_DEFAUT

@@ -30,6 +30,19 @@ def genererRapportCsv() :
     table_par_protocole = recupDico.get_table_par_protocole()
     creationCSV.creationCSVtoutesInfos(table_par_protocole)
 
+def genererRapportStatistique(mode) :
+    table_par_protocole = recupDico.get_table_par_protocole()
+    if mode == "CoucheDeux" :
+        return stats.creationRapport(mode,table_par_protocole)
+    elif mode == "CoucheTrois" :
+        return stats.creationRapport(mode,table_par_protocole)
+    elif mode == "CoucheServiceSource" :    
+        return stats.creationRapport(mode,table_par_protocole)
+    elif mode == "CoucheServiceDestination" :
+        return stats.creationRapport(mode,table_par_protocole)
+    else :
+        return None
+
 
 #liste chemin du fichier PCAP à analyser
 #/home/stagetesa/Downloads/NMAP_PROBE.pcap

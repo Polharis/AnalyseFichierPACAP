@@ -25,9 +25,9 @@ def lancer_lecture_donne_fichier_unique():
     #Table contenant tous les paquets
     table_par_protocole = {}
     filtres_actives = filtre.liste_filtre_EstActive()
-    print(filtres_actives)
 
     for (i) in range (0,longueur_PCAP):
+        print("chargement" + str(i) + "/" + str(longueur_PCAP), end="\r")
         #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
         if PACAP[i].haslayer(Ether) :
             

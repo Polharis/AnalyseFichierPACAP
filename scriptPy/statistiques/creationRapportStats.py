@@ -137,6 +137,7 @@ def creationRapport(mode,table) :
             else :
                 rapport += " service : " + stat + " présents à " + str(stats[stat]) + " %\n"
 
+    # Ce mode n'est pas pertinant, a ne pas  utiliser pour le moment, mais je le laisse au cas où je voudrais faire des analyses plus poussées sur les temps de voyage des paquets
     if mode == "TempsVoyageMoyen" :
         rapport += "Statistque sur le temps de voyage des paquets\n"
         stats = statsTempsVoyageMoyen(table)

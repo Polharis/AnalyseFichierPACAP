@@ -42,7 +42,6 @@ def generer():
 
 @app.route('/genererRapportCsv', methods=['POST'])
 def generer_csv():
-    print("okkkkkkkkkkkkkkkkkkkkkkkkk")
     #Application des filtres
     params = request.get_json(force=True, silent=True) or {}
     options.appliquer_filtres(params)
@@ -55,7 +54,23 @@ def generer_csv():
 
     return jsonify({ 'success': True})  
 
-   
+
+@app.route('/genererRapportStatistique', methods=['POST'])
+def genererRapportStatistique():
+    #Application des filtres
+    params = request.get_json(force=True, silent=True) or {}
+    options.appliquer_filtres(params)
+    #-------------------------------------
+    mode = params.get('typeStatistique', None)
+
+    fig = main.genererRapportStatistique(mode)
+
+    if fig is None:
+        return jsonify({ 'success': False, 'error': 'Aucune donnée disponible.' })
+
+    return jsonify({ 'success': True, 'statistique': fig })   
+
+
 # adresse : http://localhost:5000/
 app.run(debug=True, host='127.0.0.1', port=5000)
 

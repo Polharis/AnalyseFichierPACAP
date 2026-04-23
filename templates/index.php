@@ -11,14 +11,16 @@
   <h1>Dashboard Analyse Réseau</h1>
 
   <form id="formulaireFichier" method="GET" enctype="multipart/form-data">
-    <label for="fichier_pcap">Fichier pcap à analyser :</label>
+    <label for="fichier_pcap">Fichier pcap à analyser : </label>
     <input type="text" id="fichier_pcap" name="fichier_pcap" placeholder="Ex: /home/user/fichier.pcap">
   </form> <br>
-  
+  <span id= "texte_sans_fichier"> (un fichier PCAP par défaut sera séléctionner si le champs est vide) </span>
+  <br>
+  <br>
   <button name="bouton_options" id="bouton_options" onclick="changer_etat_formulaire()">Ouvrir les options</button>
   <button id ="buttonGraphics" onclick="changer_etat_option_graphique()">Ouvrir les options graphiques</button>
   <button id="genererRapportCsv" onclick="genererRapportCsv()">Générer rapport CSV</button>
-  <button id="genererRapportStatistique" onclick="genererRapportStatistique()">Générer rapport statistique</button>
+  <button id="buttonStatistics" onclick="changer_etat_option_statistique()">Ouvrir rapport statistique</button>
 
 
 
@@ -59,6 +61,16 @@
     <button id="InterEspacement" onclick="generer('InterEspacement')">InterEspacement</button>
 
  </div>
+
+ <div id="casePourStatstique">
+    <h2>Liste des statistiques</h2>
+    <button id="StatistiqueCoucheDeux" onclick="genererRapportStatistique('CoucheDeux')">CoucheDeux</button>
+    <button id="StatistiqueCoucheTrois" onclick="genererRapportStatistique('CoucheTrois')">CoucheTrois</button>
+    <button id="StatistiqueCoucheServiceSource" onclick="genererRapportStatistique('CoucheServiceSource')">CoucheServiceSource</button>
+    <button id="StatistiqueCoucheServiceDestination" onclick="genererRapportStatistique('CoucheServiceDestination')">CoucheServiceDestination</button>
+</div>
+
+
     
  <!--   fin du formulaire-->
       
@@ -68,7 +80,7 @@
   <p id="succesCSV">Le rapport CSV à bien été généré. Il est trouvable dans le dossier DataOutput du projet git</p>
 
   <div id="graphique" style="width:100%; height:600px;"></div>
-
+  <div id="statistique" style="width:100%; height:600px;"></div>
   
 </body>
 </html>
