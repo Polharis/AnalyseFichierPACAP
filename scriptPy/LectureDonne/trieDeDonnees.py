@@ -1,9 +1,7 @@
-import xml.etree.ElementTree  
-
 from scapy.all import *
 import datetime  
 from datetime import timedelta  
-import socket
+
 #Cette fonction permet d'ajouter les informations d'un paquet ARP dans la liste PCAPARP
 
 
@@ -63,10 +61,37 @@ def ajouter_a_table_Par_Protocole(table, paquet,numero_paquet,filtres_actives):
     table[EtherType].append(extraire_info(paquet, numero_paquet))
     return table
 
+dico_proto_deja_traites = {}
+dico_services_deja_traites = {} 
+
+#fonction pour l'optimisation du temps de traitement
+#On évite de lire les fichiers tout le temps 
+def deja_traite_proto(proto_num):
+    if proto_num in dico_proto_deja_traites.keys() :
+        return dico_proto_deja_traites[proto_num]
+    elif proto_num > 262 :
+        #Pour éviter de faire des recherches dans le fichier /etc/protocols pour les numéros de protocoles qui sont très élevés et qui sont souvent inconnus, on considère que tous les numéros de protocoles supérieurs à 262 sont inconnus
+        return "Unknown"
+    else :
+        return None
+    
+def deja_traite_service(port_num):
+    if port_num in dico_services_deja_traites.keys() :
+        return dico_services_deja_traites[port_num]
+    elif port_num > 65535 :
+        #Pour éviter de faire des recherches dans le fichier /etc/services pour les numéros de ports qui sont très élevés et qui sont souvent inconnus, on considère que tous les numéros de ports supérieurs à 65535 sont inconnus
+        return "Unknown (souvent un port éphémère)"
+    else :
+        return None
+    
+
 #L'appel paquet.proto renvoie un int qui est lié à un protocole de la couche 4,
 # cette fonction permet de faire le lien entre ce numéro et le nom du protocole
 #Lire le fichier /etc/protocols pour faire le lien entre les numéros et les protocoles
 def get_proto_name(proto_num):
+    est_deja_traite = deja_traite_proto(proto_num)
+    if est_deja_traite is not None :
+        return est_deja_traite
     path = "/etc/protocol"
     if os.path.exists("/etc/protocols") :
         path = "/etc/protocols"
@@ -84,12 +109,17 @@ def get_proto_name(proto_num):
                 continue
             try:
                 if int(champs[1]) == proto_num:
+                    dico_proto_deja_traites[proto_num] = champs[0]
                     return champs[0]
             except ValueError:
                 continue
+    dico_proto_deja_traites[proto_num] = "Unknown"
     return "Unknown"
 
 def get_service_name(port_num, proto='tcp'):
+    est_deja_traite = deja_traite_service(port_num)
+    if est_deja_traite is not None :
+        return est_deja_traite
     with open("/etc/services", "r", encoding="utf-8", errors="ignore") as f:
         for ligne in f:
             ligne = ligne.split("#", 1)[0].strip()
@@ -105,9 +135,11 @@ def get_service_name(port_num, proto='tcp'):
                 try:
                     port = int(port_str)
                     if port == port_num and protocol == proto:
+                        dico_services_deja_traites[port_num] = name
                         return name
                 except ValueError:
                     continue
+    dico_services_deja_traites[port_num] = "Unknown (souvent un port éphémère)"
     return "Unknown (souvent un port éphémère)"
 
 

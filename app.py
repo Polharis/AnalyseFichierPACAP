@@ -77,6 +77,8 @@ app.run(debug=True, host='127.0.0.1', port=5000)
 
 #liste chemin du fichier PCAP à analyser
 #/home/stagetesa/Downloads/NMAP_PROBE.pcap
+#/home/stagetesa/Downloads/a1_res0.pcap
+#/home/stagetesa/Downloads/transfer_12517082_files_0bb119a5/obs1_res15.pcap
 
 #liste filtre 
 #CoucheDeux
