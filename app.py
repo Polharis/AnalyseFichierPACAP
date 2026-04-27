@@ -30,7 +30,19 @@ def generer():
 
     typeGraphique = params.get('typeGraphique', None)
 
-    fig = main.genererGraphique(typeGraphique)
+    plage_temps_graphique = params.get('plage_temps_graphique', None)
+
+    if plage_temps_graphique is None :
+        plage_temps_graphique = 30 # valeur par défaut de la plage de temps pour les graphiques de temps
+    elif plage_temps_graphique is not int :
+        try :
+            plage_temps_graphique = int(plage_temps_graphique)
+        except ValueError :
+            plage_temps_graphique = 30 # valeur par défaut de la plage de temps pour les graphiques de temps
+    elif plage_temps_graphique <= 0 or plage_temps_graphique > 700 :
+        plage_temps_graphique = 30 # valeur par défaut de la plage de temps pour les graphiques de temps
+
+    fig = main.genererGraphique(typeGraphique,plage_temps_graphique)
 
  
 
@@ -62,6 +74,7 @@ def genererRapportStatistique():
     options.appliquer_filtres(params)
     #-------------------------------------
     mode = params.get('typeStatistique', None)
+    
 
     fig = main.genererRapportStatistique(mode)
 

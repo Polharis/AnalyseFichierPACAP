@@ -1,27 +1,28 @@
     est_formulaire_filtre_ouvert = false;
     est_options_graphique_ouvert = false;
     est_options_statistique_ouvert = false;
+    est_options_rapport_CSV_ouvert = false;
 
     function changer_etat_formulaire(){
         if (est_formulaire_filtre_ouvert) {
             fermerFormulaire();
-            est_formulaire_filtre_ouvert = false;
+           
         } else {
             cacherToutElement()
             afficherFormulaire();
-            est_formulaire_filtre_ouvert = true;
+            
         }
     }
 
     function changer_etat_option_graphique(){
         if (est_options_graphique_ouvert) {
             cacherOptionGraphique();
-            est_options_graphique_ouvert = false;
+            
 
         } else {
             cacherToutElement()
             afficherOptionGraphique();
-            est_options_graphique_ouvert = true;
+            
         }
     }
 
@@ -29,11 +30,22 @@
         
         if (est_options_statistique_ouvert) {
             cacherOptionStatistique();
-            est_options_statistique_ouvert = false;
+            
         } else {
             cacherToutElement()
             afficherOptionStatistique();
-            est_options_statistique_ouvert = true;
+            
+        }
+    }
+
+    function changer_etat_option_rapport_CSV() {
+        if (est_options_rapport_CSV_ouvert) {
+            cacherOptionRapportCSV();
+            
+        } else {
+            cacherToutElement()
+            afficherOptionRapportCSV();
+            
         }
     }
     
@@ -41,42 +53,59 @@
     function afficherFormulaire() {
       document.getElementById('casePourFiltre').style.display = 'block';
       document.getElementById('bouton_options').textContent = 'Fermer les options';
+      est_formulaire_filtre_ouvert = true;
     }
 
     function fermerFormulaire() {
       document.getElementById('casePourFiltre').style.display = 'none';
       document.getElementById('bouton_options').textContent = 'Ouvrir les options';
+      est_formulaire_filtre_ouvert = false;
     }
 
     function afficherOptionGraphique() {
         document.getElementById('casePourGraphique').style.display = 'block';
         document.getElementById('buttonGraphics').textContent = 'Fermer les options graphiques';
+        est_options_graphique_ouvert = true;
     }
 
     function cacherOptionGraphique() {
         document.getElementById('casePourGraphique').style.display = 'none';
         document.getElementById('buttonGraphics').textContent = 'Ouvrir les options graphiques';
         document.getElementById('graphique').style.display = 'none';
+        est_options_graphique_ouvert = false;
     }
 
     function afficherOptionStatistique() {
         document.getElementById('casePourStatstique').style.display = 'block';
         document.getElementById('buttonStatistics').textContent = 'Fermer les options statistiques';
+        est_options_statistique_ouvert = true;
     }
 
     function cacherOptionStatistique() {
         document.getElementById('casePourStatstique').style.display = 'none';
         document.getElementById('buttonStatistics').textContent = 'Ouvrir les options statistiques';
         document.getElementById('statistique').style.display = 'none';
+        est_options_statistique_ouvert = false;
+    }
+
+    function afficherOptionRapportCSV() {
+        document.getElementById('casePourRapportCSV').style.display = 'block';
+        document.getElementById('genererRapportCsv').textContent = 'Fermer les options rapport CSV';
+        est_options_rapport_CSV_ouvert = true;
+    }
+
+    function cacherOptionRapportCSV() {
+        document.getElementById('casePourRapportCSV').style.display = 'none';
+        document.getElementById('genererRapportCsv').textContent = 'Générer rapport CSV';
+        document.getElementById('succesCSV').style.display = 'none';
+        est_options_rapport_CSV_ouvert = false;
     }
 
     function cacherToutElement() {
-      document.getElementById('casePourFiltre').style.display = 'none';
-      document.getElementById('casePourGraphique').style.display = 'none';
-      document.getElementById('casePourStatstique').style.display = 'none';
-      document.getElementById('graphique').style.display = 'none';
-      document.getElementById('statistique').style.display = 'none';
-      document.getElementById('succesCSV').style.display = 'none';
+      fermerFormulaire();
+      cacherOptionGraphique();
+      cacherOptionStatistique();
+      cacherOptionRapportCSV();
       document.getElementById('erreur').textContent = '';
     }
 
@@ -146,6 +175,7 @@
         const port_specifique = document.getElementById('port_specifique').value;
         const plage_temps = document.getElementById('plage_temps').value;
         const chemin_fichier = document.getElementById('fichier_pcap').value;
+        const plage_temps_graphique = document.getElementById('plage_temps_graphique').value;
         
 
       const filtres = {
@@ -155,7 +185,8 @@
         port_specifique: port_specifique,
         plage_temps: plage_temps,
         typeGraphique: typeGraphique,
-        chemin_fichier: chemin_fichier
+        chemin_fichier: chemin_fichier,
+        plage_temps_graphique: plage_temps_graphique
       };
 
      

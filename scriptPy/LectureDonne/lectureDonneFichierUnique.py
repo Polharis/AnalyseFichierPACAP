@@ -10,7 +10,7 @@ import scriptPy.LectureDonne.optionsArgParse as optionsArgParse
 import scriptPy.filtrageDonnee.listeFiltre as filtre  
 
 
-cache = {'table': None, 'plage_temps': None,'filtres': None,'emplacement_fichier': None, 'initialized': False}
+cache = {'table': None, 'plage_temps': None,'filtres': None,'emplacement_fichier': None, "plage_temps_graph": None,'initialized': False}
 
 def lancer_lecture_donne_fichier_unique():
     #Récupération de la plage de temps entrée en paramètre par l'utilisateur
@@ -21,8 +21,10 @@ def lancer_lecture_donne_fichier_unique():
 
     filtres_actives = filtre.liste_filtre_EstActive()
 
+    plage_temps_graphique = optionsArgParse.get_plage_temps_graphique
+
     #Vérification si les données ont déjà été traitées pour éviter de les retraiter à chaque fois
-    if cache['initialized'] and cache['emplacement_fichier'] == emplacement_fichier and cache['filtres'] == filtres_actives and cache['plage_temps'] == plage_temps:
+    if cache['initialized'] and cache['emplacement_fichier'] == emplacement_fichier and cache['filtres'] == filtres_actives and cache['plage_temps'] == plage_temps and cache['plage_temps_graph'] == plage_temps_graphique:
         return cache['table'], plage_temps
 
     
@@ -55,6 +57,7 @@ def lancer_lecture_donne_fichier_unique():
     cache['filtres'] = filtres_actives
     cache['emplacement_fichier'] = emplacement_fichier
     cache['plage_temps'] = plage_temps
+    cache['plage_temps_graph'] = plage_temps_graphique
     return table_par_protocole, plage_temps
 
 def get_table_par_protocole() :

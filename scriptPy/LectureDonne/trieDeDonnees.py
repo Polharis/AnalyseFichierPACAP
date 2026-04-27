@@ -157,6 +157,14 @@ def get_arp_proto_name(arp_ptype_num):
     return 'Unknown'
 
 
+def Est_protocole_couche_4(proto_num) :
+    proto_couche_4 = ["tcp", "udp", "sctp","dccp"]
+    proto_name = get_proto_name(proto_num)
+    if proto_name in proto_couche_4 :
+        return True
+    else :
+        return False
+
 def extraire_info(paquet,num_paquet) : 
     #On ajoute d'abord les informations communes à tous les paquets
     Infos = {
@@ -172,7 +180,10 @@ def extraire_info(paquet,num_paquet) :
 
     #Dans cette section on va avoir des types d'informations différents selon le type de payload du paquet Ethernet
     if paquet.haslayer('IP') :
-        Infos['protocole_3'] = get_proto_name(paquet[IP].proto)
+        if Est_protocole_couche_4(paquet[IP].proto) :
+            Infos['protocole_4'] = get_proto_name(paquet[IP].proto)
+        else : 
+            Infos['protocole_3'] = get_proto_name(paquet[IP].proto)
         Infos['ttl'] = paquet[IP].ttl
         Infos['source'] = paquet[IP].src
         Infos['destination'] = paquet[IP].dst
@@ -181,17 +192,23 @@ def extraire_info(paquet,num_paquet) :
             Infos['port_src'] = get_service_name(paquet[IP].sport)
             Infos['port_dst'] = get_service_name(paquet[IP].dport)
     elif paquet.haslayer('ARP') : 
-        Infos['protocole_3'] = get_arp_proto_name(paquet[ARP].ptype)
+        if Est_protocole_couche_4(paquet[ARP].ptype) :
+            Infos['protocole_4'] = get_proto_name(paquet[ARP].ptype)
+        else : 
+            Infos['protocole_3'] = get_proto_name(paquet[ARP].ptype)
         Infos['source'] = paquet[ARP].psrc
         Infos['destination'] = paquet[ARP].pdst
         Infos['ni IP ni ARP'] = False
     elif paquet.haslayer('IPv6') :
-        Infos['protocole_3'] = get_proto_name(paquet[IPv6].nh)
+        if Est_protocole_couche_4(paquet[IPv6].nh) :
+            Infos['protocole_4'] = get_proto_name(paquet[IPv6].nh)
+        else : 
+            Infos['protocole_3'] = get_proto_name(paquet[IPv6].nh)
         Infos['ttl'] = paquet[IPv6].hlim
         Infos['source'] = paquet[IPv6].src
         Infos['destination'] = paquet[IPv6].dst
         Infos['ni IP ni ARP'] = False
-        if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP'):
+        if paquet.haslayer('TCP') or paquet.haslayer('UDP') or paquet.haslayer('SCTP') or paquet.haslayer('DCCP'):
             Infos['port_src'] = get_service_name(paquet[IPv6].sport)
             Infos['port_dst'] = get_service_name(paquet[IPv6].dport)
     else :
@@ -231,7 +248,6 @@ def reunir_paquet_par_temps(table, plage_temps):
     if plage_temps is None:
         return table
     if plage_temps <= 0.00001:
-        print("ok")
         return table
 
     #Dans le cas contraire, on commence par transformer le nombre en secondes

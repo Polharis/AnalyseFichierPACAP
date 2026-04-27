@@ -44,6 +44,27 @@ def statsCoucheTrois(dicoReseau) :
 
     return stats_pourcentage
 
+def statsCoucheQuatre(dicoReseau) :
+    #On compte le nombre de paquets de chaque type de protocole de couche 3
+    stats = {}
+    for protocols_couches_1 in dicoReseau.keys() : 
+        for paquet in dicoReseau[protocols_couches_1] :
+            if 'protocole_4' in paquet.keys() :
+                proto_couche_4 = paquet['protocole_4']
+                if proto_couche_4 not in stats.keys() :
+                    stats[proto_couche_4] = 1
+                else :
+                    stats[proto_couche_4] += 1
+    stats_pourcentage = {}
+    total_paquet = 0
+    for listes_paquets in dicoReseau.values() :
+        total_paquet += len(listes_paquets)
+    stats_pourcentage["total_paquet"] = total_paquet
+    for protos in stats.keys() :
+        stats_pourcentage[protos] = (stats[protos] / total_paquet) * 100
+
+    return stats_pourcentage
+
 def statsCoucheServiceSource(dicoReseau) :
     stats = {}
     for protocols_couches_1 in dicoReseau.keys() : 
@@ -82,7 +103,7 @@ def statsCoucheServiceDestination(dicoReseau) :
         stats_pourcentage[protos] = (stats[protos] / total_paquet) * 100
     return stats_pourcentage    
 
-def liste_différence_src_dst_adjacente(dicoReseau) :
+def liste_différence_src_dst_adjacente(dicoReseau,plage_temps_graphique) :
     src_dst = {}
     src_dst_diff = {}
     for key in dicoReseau.keys() :
@@ -98,8 +119,12 @@ def liste_différence_src_dst_adjacente(dicoReseau) :
             if i % 2 == 0 :
                 n = src_dst[couple][i].timestamp() * 1000 #en millisecondes
                 n_plus_un = src_dst[couple][i+1].timestamp() * 1000 #en millisecondes
-                liste_difference.append(n_plus_un - n)
+                diff = n_plus_un - n
+                # Arrondir au multiple de plage_temps_graphique le plus proche
+                diff_arrondi = round(diff / plage_temps_graphique) * plage_temps_graphique
+                liste_difference.append(diff_arrondi)
         src_dst_diff.setdefault(couple,liste_difference)
+
     return src_dst_diff
 
 def creationRapport(mode,table) :
@@ -115,6 +140,14 @@ def creationRapport(mode,table) :
     if mode == "CoucheTrois" :
         rapport += "Statistque sur la troisième couche\n"
         stats = statsCoucheTrois(table)
+        for stat in stats.keys() : 
+            if stat == "total_paquet" :
+                rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"
+            else :
+                rapport += " protocols : " + stat + " présents à " + str(stats[stat]) + " %\n"
+    if mode == "CoucheQuatre" :
+        rapport += "Statistque sur la quatrième couche\n"
+        stats = statsCoucheQuatre(table)
         for stat in stats.keys() : 
             if stat == "total_paquet" :
                 rapport += "Nombre total de paquets traités : " + str(stats[stat]) + "\n"

@@ -19,7 +19,7 @@
   <br>
   <button name="bouton_options" id="bouton_options" onclick="changer_etat_formulaire()">Ouvrir les options</button>
   <button id ="buttonGraphics" onclick="changer_etat_option_graphique()">Ouvrir les options graphiques</button>
-  <button id="genererRapportCsv" onclick="genererRapportCsv()">Générer rapport CSV</button>
+  <button id="genererRapportCsv" onclick="changer_etat_option_rapport_CSV()">Ouvrir les options de rapport CSV</button>
   <button id="buttonStatistics" onclick="changer_etat_option_statistique()">Ouvrir rapport statistique</button>
 
 
@@ -54,11 +54,21 @@
  <div id="casePourGraphique">
 
     <h2>Liste des graphiques</h2>
-    <button id="CoucheDeux" onclick="generer('CoucheDeux')">CoucheDeux</button>
+    <button id="CoucheDeux" onclick="generer('CoucheDeux')">EtherType</button>
     <button id="CoucheTrois" onclick="generer('CoucheTrois')">CoucheTrois</button>
+    <button id="CoucheQuatre" onclick="generer('CoucheQuatre')">CoucheQuatre</button>
     <button id="CoucheServiceSource" onclick="generer('CoucheServiceSource')">CoucheServiceSource</button>
     <button id="CoucheServiceDestination" onclick="generer('CoucheServiceDestination')">CoucheServiceDestination</button>
-    <button id="InterEspacement" onclick="generer('InterEspacement')">InterEspacement</button>
+    <p> graphiques de temps </p>
+    <p> formulaire ne s'appliquant que pour les graphiques de temps :</p>
+    <form id="formulaireGraphiqueTemps" method = "GET">
+        <label for="plage_temps_graphique">Plage de temps en millisecondes pour les graphiques de temps :</label>
+        <input type="text" id = "plage_temps_graphique" name = "plage_temps_graphique" placeholder=" 30 millisecondes par défaut"> <br>
+    </form>
+    <br>
+    <br>
+    <button id="IntraEspacement" onclick="generer('IntraEspacement')">IntraEspacement, histogramme</button>
+    <button id="IntraEspacementRepartition" onclick="generer('IntraEspacementRepartition')">IntraEspacement, courbe de répartition</button>
 
  </div>
 
@@ -68,6 +78,12 @@
     <button id="StatistiqueCoucheTrois" onclick="genererRapportStatistique('CoucheTrois')">CoucheTrois</button>
     <button id="StatistiqueCoucheServiceSource" onclick="genererRapportStatistique('CoucheServiceSource')">CoucheServiceSource</button>
     <button id="StatistiqueCoucheServiceDestination" onclick="genererRapportStatistique('CoucheServiceDestination')">CoucheServiceDestination</button>
+</div>
+
+<div id="casePourRapportCSV">
+    <h2>Génération du rapport CSV</h2>
+    <button id="genererRapportCsv" onclick="genererRapportCsv()">Générer un rapport CSV générale</button>
+    <p> Rapport CSV sur les statistiques de temps </p>
 </div>
 
 

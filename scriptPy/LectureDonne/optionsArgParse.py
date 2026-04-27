@@ -33,6 +33,10 @@ def get_filtre():
     
     return args
 
+def get_plage_temps_graphique() :
+    if "plage_temps_graphique" in filtres_à_appliquer.keys() and filtres_à_appliquer["plage_temps_graphique"] is not None and filtres_à_appliquer["plage_temps_graphique"] != "" :
+        return filtres_à_appliquer["plage_temps_graphique"]
+
 
 
 

@@ -5,6 +5,7 @@ import io
 
 #pour plotly
 import plotly.graph_objects as go
+import plotly.express as px
 import json
 
 
@@ -44,7 +45,7 @@ def statistiqueSousgraphique(stats_table, graph_type) :
 
 
 #Créer un histogramme de l'inter-espacement entre les paquets pour chaque conversation (src, dst)
-def histogrammeInterEspacement(dicoReseau):
+def histogrammeIntraEspacement(dicoReseau,plage_temps_graphique) :
     fig = go.Figure()
 
     for (src, dst), times in dicoReseau.items():
@@ -54,7 +55,7 @@ def histogrammeInterEspacement(dicoReseau):
             x=times,
             name=f"{src} → {dst}",
             opacity=0.6,
-            nbinsx=100
+            xbins=dict(size=plage_temps_graphique)  
         ))
 
     fig.update_layout(
@@ -66,13 +67,62 @@ def histogrammeInterEspacement(dicoReseau):
 
     return fig.to_json()
 
+def courbeRepartitionIntraEspacement(dicoReseau,plage_temps_graphique) :
+    fig = go.Figure()
+
+    liste_temps = []
+    dico_temps_pourcent = {}
+    for valeures in dicoReseau.values():
+        for temps in valeures : 
+            liste_temps.append(temps)
+    liste_temps.sort()
+    
+    # Regrouper les temps par plage_temps_graphique et compter les occurrences
+    for temps in liste_temps :
+        temps_arrondi = round(temps / plage_temps_graphique) * plage_temps_graphique
+        dico_temps_pourcent.setdefault(temps_arrondi, 0)
+        dico_temps_pourcent[temps_arrondi] += 1
+    
+    # Calculer les pourcentages
+    total = len(liste_temps)
+    for temps_arrondi in dico_temps_pourcent :
+        dico_temps_pourcent[temps_arrondi] = (dico_temps_pourcent[temps_arrondi] / total) * 100
+    
+    # Trier le dictionnaire par temps
+    temps_tries = sorted(dico_temps_pourcent.keys())
+    pourcentages = [dico_temps_pourcent[t] for t in temps_tries]
+    
+    # Calculer les pourcentages cumulatifs
+    cumulative = []
+    cumul = 0
+    for pourcent in pourcentages :
+        cumul += pourcent
+        cumulative.append(cumul)
+    
+    # Ajouter la courbe de répartition cumulative
+    fig.add_trace(go.Scatter(
+        x=temps_tries,
+        y=cumulative,
+        mode='lines+markers',
+        name='Répartition cumulative',
+        line=dict(color='blue', width=2)
+    ))
+    
+    fig.update_layout(
+        title="Courbe de répartition cumulative des inter-espacements",
+        xaxis_title="Inter-espacement (millisecondes)",
+        yaxis_title="Pourcentage cumulatif (%)",
+        hovermode='x unified'
+    )
+
+    return fig.to_json()
 
 
 def choisirGraphique(stats_table, typeGraphique) :
     if typeGraphique == "CoucheDeux" or typeGraphique == "CoucheTrois" or typeGraphique == "CoucheServiceSource" or typeGraphique == "CoucheServiceDestination" :
         return statistiqueSousgraphique(stats_table, typeGraphique)
     elif typeGraphique == "InterEspacement" :
-        return histogrammeInterEspacement(stats_table)
+        return histogrammeIntraEspacement(stats_table)
     else : 
         return None
 
