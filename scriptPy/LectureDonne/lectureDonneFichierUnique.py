@@ -1,9 +1,12 @@
 import sys
 import os
+import socket
 
 # Remonte d'un niveau pour atteindre la racine du projet
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+
+import dpkt
 from scapy.all import *
 import scriptPy.LectureDonne.trieDeDonnees as trieDeDonnees
 import scriptPy.LectureDonne.optionsArgParse as optionsArgParse
@@ -13,11 +16,38 @@ import scriptPy.filtrageDonnee.listeFiltre as filtre
 cache = {'table': None, 'plage_temps': None,'filtres': None,'emplacement_fichier': None, "plage_temps_graph": None,'initialized': False}
 
 def lancer_lecture_donne_fichier_unique():
-    #Récupération de la plage de temps entrée en paramètre par l'utilisateur
-    plage_temps = optionsArgParse.get_plage_temps()
 
     #Récupération de l'emplacement du fichier si il y en a un
     emplacement_fichier = optionsArgParse.get_emplacement_fichier()
+    #------------------------------- TEST DPKT ---------------------
+
+    with open(emplacement_fichier, 'rb') as f:
+        magic = f.read(4)
+        f.seek(0)  # rewind
+
+        # Détection automatique du format
+        if magic == b'\x0a\x0d\x0d\x0a':
+            reader = dpkt.pcapng.Reader(f)
+        else:
+            reader = dpkt.pcap.Reader(f)
+
+        for ts, buf in reader:
+            try:
+                eth = dpkt.ethernet.Ethernet(buf)
+                if not isinstance(eth.data, dpkt.ip.IP):
+                    continue
+                ip = eth.data
+                src_ip_str = socket.inet_ntoa(ip.src)
+                dst_ip_str = socket.inet_ntoa(ip.dst)
+                print(f"IP source: {src_ip_str}, IP destination: {dst_ip_str}")
+            except Exception:
+                continue
+                print("Erreur lors de la lecture du paquet  avec dpkt")
+    #---------------------------------------------------------------
+    #Récupération de la plage de temps entrée en paramètre par l'utilisateur
+    plage_temps = optionsArgParse.get_plage_temps()
+
+    
 
     filtres_actives = filtre.liste_filtre_EstActive()
 
