@@ -17,10 +17,34 @@ cache = {'table': None, 'plage_temps': None,'filtres': None,'emplacement_fichier
 
 def lancer_lecture_donne_fichier_unique():
 
+    #Récupération de la plage de temps entrée en paramètre par l'utilisateur
+    plage_temps = optionsArgParse.get_plage_temps()
+
+    
+
+    filtres_actives = filtre.liste_filtre_EstActive()
+
+    plage_temps_graphique = optionsArgParse.get_plage_temps_graphique()
+
     #Récupération de l'emplacement du fichier si il y en a un
     emplacement_fichier = optionsArgParse.get_emplacement_fichier()
-    #------------------------------- TEST DPKT ---------------------
 
+    #-------------------------- TEST DPKT ------------------------
+
+    
+
+       
+         
+    #---------------------------------------------------------------
+    
+
+    #Vérification si les données ont déjà été traitées pour éviter de les retraiter à chaque fois
+    if cache['initialized'] and cache['emplacement_fichier'] == emplacement_fichier and cache['filtres'] == filtres_actives and cache['plage_temps'] == plage_temps and cache['plage_temps_graph'] == plage_temps_graphique:
+        return cache['table'], plage_temps
+
+    
+
+    # Récupération du fichier pcapng ou pcap
     with open(emplacement_fichier, 'rb') as f:
         magic = f.read(4)
         f.seek(0)  # rewind
@@ -31,56 +55,25 @@ def lancer_lecture_donne_fichier_unique():
         else:
             reader = dpkt.pcap.Reader(f)
 
+        #Table contenant tous les paquets
+        table_par_protocole = {}
+        i = 0
+
         for ts, buf in reader:
+            if i % 1000 == 0:  
+                print("chargement " + str(i) + " paquets lus")
+            
+            # Vérifier que c'est bien une couche Ethernet valide
             try:
                 eth = dpkt.ethernet.Ethernet(buf)
-                if not isinstance(eth.data, dpkt.ip.IP):
-                    continue
-                ip = eth.data
-                src_ip_str = socket.inet_ntoa(ip.src)
-                dst_ip_str = socket.inet_ntoa(ip.dst)
-                print(f"IP source: {src_ip_str}, IP destination: {dst_ip_str}")
-            except Exception:
-                continue
-                print("Erreur lors de la lecture du paquet  avec dpkt")
-    #---------------------------------------------------------------
-    #Récupération de la plage de temps entrée en paramètre par l'utilisateur
-    plage_temps = optionsArgParse.get_plage_temps()
-
-    
-
-    filtres_actives = filtre.liste_filtre_EstActive()
-
-    plage_temps_graphique = optionsArgParse.get_plage_temps_graphique
-
-    #Vérification si les données ont déjà été traitées pour éviter de les retraiter à chaque fois
-    if cache['initialized'] and cache['emplacement_fichier'] == emplacement_fichier and cache['filtres'] == filtres_actives and cache['plage_temps'] == plage_temps and cache['plage_temps_graph'] == plage_temps_graphique:
-        return cache['table'], plage_temps
-
-    
-
-    # Récupération du fichier pcapng dans la variable PCAP
-    PACAP = rdpcap(emplacement_fichier)
-    longueur_PCAP = len(PACAP)
-
-    
-
-
-    #Table contenant tous les paquets
-    table_par_protocole = {}
-    
-
-    
-    for (i) in range (0,longueur_PCAP):
-
-        if i % 1000 == 0:  
-            print("chargement" + str(i) + "/" + str(longueur_PCAP), end="\r")
-        
-        #Au cas où le paquet n'aurait pas de couche Ethernet, on ne le traite pas (pour éviter la casse du programme)
-        if PACAP[i].haslayer(Ether) :
+                if isinstance(eth, dpkt.ethernet.Ethernet):
+                    table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, eth, i + 1, filtres_actives)
+            except:
+                # Ignorer les paquets qui ne peuvent pas être parsés
+                print ("erreur")
+                pass
             
-            
-            table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, PACAP[i], i + 1, filtres_actives)
+            i += 1
 
     cache['table'] = table_par_protocole
     cache['initialized'] = True
@@ -88,6 +81,7 @@ def lancer_lecture_donne_fichier_unique():
     cache['emplacement_fichier'] = emplacement_fichier
     cache['plage_temps'] = plage_temps
     cache['plage_temps_graph'] = plage_temps_graphique
+    print (table_par_protocole)
     return table_par_protocole, plage_temps
 
 def get_table_par_protocole() :
