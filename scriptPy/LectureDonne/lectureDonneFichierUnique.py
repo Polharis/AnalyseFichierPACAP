@@ -66,11 +66,12 @@ def lancer_lecture_donne_fichier_unique():
             # Vérifier que c'est bien une couche Ethernet valide
             try:
                 eth = dpkt.ethernet.Ethernet(buf)
+                print(buf)
                 if isinstance(eth, dpkt.ethernet.Ethernet):
                     table_par_protocole = trieDeDonnees.ajouter_a_table_Par_Protocole(table_par_protocole, eth, i + 1, filtres_actives)
             except:
                 # Ignorer les paquets qui ne peuvent pas être parsés
-                print ("erreur")
+            
                 pass
             
             i += 1
